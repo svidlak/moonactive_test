@@ -11,7 +11,7 @@ exports.saveNewMessage = async (data, message) => {
 exports.getMessages = (data, missed = false) => {
     client.zrangebyscore(data, (error, data) => {
         if(data.length > 0){
-            if(missed) log.success('Missed Messages are: ')
+            if(missed) log.success('RESTART Missed Messages are: ')
             const sortedArray = data.reduce( (newArray, value) => {
                 log.success(value)
                 newArray.push(0, value)
@@ -41,7 +41,7 @@ exports.getMessages = (data, missed = false) => {
                 if(error) log.error(error.message)
             })
         } else {
-            log.success('No messages to get, Great!')
+            log.success(missed ? 'RESTART' : 'INTERVAL' +': No messages to get, Great!')
         }
     })
 }
