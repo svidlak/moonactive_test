@@ -42,12 +42,12 @@ app.use( (req, res) => res.status(404).json({error: 'Route not found'}) )
 app.listen(port, () => {
     log.normal(`Example app listening at http://localhost:${port}`)
     missedMessages()
-    fetchMessage()
 })
 
 function missedMessages(){
     const dataToFetch = ['messages', 1, new Date().getTime()]
     RedisService.getMessages(dataToFetch, true)
+    fetchMessage()
 }
 
 function fetchMessage(){
