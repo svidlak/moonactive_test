@@ -28,10 +28,10 @@ exports.getMessages = (data, missed = false) => {
          https://github.com/svidlak/node_react_app
     */
 
-    client.zrangebyscore(data, (error, data) => {
-        if(data.length > 0){
+    client.zrangebyscore(data, (error, response) => {
+        if(response.length > 0){
             if(missed) log.success('RESTART Missed Messages are: ')
-            const sortedArray = data.reduce( (newArray, value) => {
+            const sortedArray = response.reduce( (newArray, value) => {
                 log.success(`${missed ? 'RESTART' : 'INTERVAL'}: ${value}`)
                 newArray.push(0, value)
                 return newArray
