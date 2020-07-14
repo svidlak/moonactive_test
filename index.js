@@ -42,7 +42,7 @@ app.listen(port, () => missedMessages())
 
 function missedMessages(){
     // express app logger moved here, because I wanted to keep the app.listen as a one liner
-    log.normal(`Example app listening at http://localhost:${port}`);
+    log.normal(`Example app listening at http://localhost:${port}`)
 
     const dataToFetch = ['messages', 1, new Date().getTime()]
     client.zrangebyscore(dataToFetch, (error, data) => {
