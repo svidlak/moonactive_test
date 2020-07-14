@@ -22,7 +22,7 @@ app.post('/echoAtTime', async (req, res) => {
         if(!date || !date.getTime()) throw new Error('bad date format')
 
         const dataToSave = ['messages', date.getTime(), req.body.message]
-        const savedData = await RedisService.saveNewMessage(dataToSave, req.body.message)
+        const savedData = await RedisService.saveNewMessage(dataToSave)
         res.status(200).json({data: savedData})
 
     }catch(e){
