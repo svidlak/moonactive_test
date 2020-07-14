@@ -38,6 +38,7 @@ exports.getMessages = (data, missed = false) => {
             }, [])
 
             sortedArray.unshift('messages')
+            // overriding fetched messages with a score of 0, so next restart won't fetch the handled messages
             client.zadd(sortedArray, error => {
                 if(error) log.error(error.message)
             })
