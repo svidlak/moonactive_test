@@ -38,7 +38,7 @@ app.post('/echoAtTime', async (req, res) => {
 // 404 handler
 app.use( (req, res) => res.status(404).json({error: 'Route not found'}) )
 
-app.listen(port, () => missedMessages())
+app.listen(port, () => missedMessages() )
 
 function missedMessages(){
     // express app logger moved here, because I wanted to keep the app.listen as a one liner
