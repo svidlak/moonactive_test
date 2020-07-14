@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const port = 3000
 const bodyParser = require('body-parser')
-const Redis = require('./services/redis')
+const RedisService = require('./services/redis')
 const log = require('./services/logger')
 
 app.use(bodyParser.json())
@@ -22,7 +22,7 @@ app.post('/echoAtTime', async (req, res) => {
         if(!date || !date.getTime()) throw new Error('bad date format')
 
         const dataToSave = ['messages', date.getTime(), req.body.message]
-        const savedData = await Redis.saveNewMessage(dataToSave, req.body.message)
+        const savedData = await RedisService.saveNewMessage(dataToSave, req.body.message)
         res.status(200).json({data: savedData})
 
     }catch(e){
@@ -34,12 +34,22 @@ app.post('/echoAtTime', async (req, res) => {
 // 404 handler
 app.use( (req, res) => res.status(404).json({error: 'Route not found'}) )
 
-app.listen(port, () => missedMessages() )
+app.listen(port, () => {
+    log.normal(`Example app listening at http://localhost:${port}`)
+    missedMessages()
+    fetchMessage()
+})
 
 function missedMessages(){
-    // express app logger moved here, because I wanted to keep the app.listen as a one liner
-    log.normal(`Example app listening at http://localhost:${port}`)
-
     const dataToFetch = ['messages', 1, new Date().getTime()]
-    Redis.missedMessages(dataToFetch)
+    RedisService.getMessages(dataToFetch, true)
+}
+
+function fetchMessage(){
+    setInterval(()=> {
+        // settings MS to 0, because all the score is being saved with MS of 0
+        const score = new Date().setMilliseconds(0)
+        const dataToFetch = ['messages', score, score]
+        RedisService.getMessages(dataToFetch)
+    }, 700)
 }
