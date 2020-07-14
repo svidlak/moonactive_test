@@ -25,9 +25,9 @@ app.post('/echoAtTime', async (req, res) => {
         const date = new Date(req.body.date)
         if(!date || !date.getTime()) throw new Error('bad date format')
 
-        const data_to_save = ['messages', date.getTime(), req.body.message]
-        const saved_data = await client.zadd(data_to_save)
-        res.status(200).json({data: saved_data})
+        const dataToSave = ['messages', date.getTime(), req.body.message]
+        const savedData = await client.zadd(dataToSave)
+        res.status(200).json({data: savedData})
 
     }catch(e){
         log.error(e.message)
@@ -38,14 +38,14 @@ app.post('/echoAtTime', async (req, res) => {
 // 404 handler
 app.use( (req, res) => res.status(404).json({error: 'Route not found'}) )
 
-app.listen(port, () => missed_messages())
+app.listen(port, () => missedMessages())
 
-function missed_messages(){
+function missedMessages(){
     // express app logger moved here, because I wanted to keep the app.listen as a one liner
     log.normal(`Example app listening at http://localhost:${port}`);
 
-    const data_to_fetch = ['messages', 1, new Date().getTime()]
-    client.zrangebyscore(data_to_fetch, (error, data) => {
+    const dataToFetch = ['messages', 1, new Date().getTime()]
+    client.zrangebyscore(dataToFetch, (error, data) => {
 
         if(data.length > 0){
             log.success('Missed Messages are: ')
