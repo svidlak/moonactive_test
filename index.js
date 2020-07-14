@@ -3,8 +3,8 @@ const app = express()
 const port = 3000
 const bodyParser = require('body-parser')
 const redis = require('redis')
-const client = redis.createClient()
 const chalk = require('chalk')
+const client = redis.createClient()
 
 app.use(bodyParser.json())
 
