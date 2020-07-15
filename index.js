@@ -18,15 +18,13 @@ app.post('/echoAtTime', async (req, res) => {
     try{
         if(!req.body.message || !req.body.date) throw new Error('Please provide message and date')
 
-        let date = new Date(req.body.date)
+        const date = new Date(req.body.date)
         if(!date || !date.getTime()) throw new Error('bad date format')
-
         /*
             setting milliseconds to 0, because I don't want to spam the local redis server
             with requests.
          */
-        date = date.setMilliseconds(0)
-        const dataToSave = ['messages', date, req.body.message]
+        const dataToSave = ['messages', date.setMilliseconds(0), req.body.message]
         const savedData = await RedisService.saveNewMessage(dataToSave)
         res.status(200).json({data: savedData})
 
