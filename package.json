@@ -1,0 +1,48 @@
+{
+  "name": "moonactive_test",
+  "version": "1.0.0",
+  "description": "Redis with nodejs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/svidlak/moonactive_test.git"
+  },
+  "author": "Max Svidlo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/svidlak/moonactive_test/issues"
+  },
+  "homepage": "https://github.com/svidlak/moonactive_test#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "chalk": "^4.1.0",
+    "dotenv": "^16.0.1",
+    "express": "^4.17.1",
+    "redis": "^4.1.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0"
+  },
+  "mocha": {
+    "diff": true,
+    "extension": [
+      "js",
+      "cjs",
+      "mjs"
+    ],
+    "package": "./package.json",
+    "reporter": "spec",
+    "slow": 75,
+    "timeout": 30000,
+    "ui": "bdd",
+    "parallel": true,
+    "require": "dotenv/config",
+    "spec": [
+      "test/*.spec.js"
+    ]
+  }
+}
