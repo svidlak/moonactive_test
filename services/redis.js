@@ -1,4 +1,3 @@
-require('dotenv').config()
 const { REDIS_URL } = process.env
 const log = require('./logger')
 const { createClient } = require('redis')
@@ -7,7 +6,7 @@ const client = createClient({url: (REDIS_URL || null)})
 async function init(){
     client.on('error', error => log.error(error))
     client.on('connect', () => log.success(`Redis client Connected`));
-
+    console.log(client.isOpen)
     await client.connect();
 }
 
