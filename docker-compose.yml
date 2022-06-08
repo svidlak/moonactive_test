@@ -19,5 +19,7 @@ services:
       - NODE_ENV=development
       - PORT=3001
       - REDIS_KEY=messages
+      - REDIS_KEY_MINUTES_TTL=10
+      - FETCH_MESSAGES_EVERY=10
     command:
       sh -c 'npm i && npm start'

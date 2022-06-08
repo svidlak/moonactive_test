@@ -1,39 +1,54 @@
 require('dotenv').config()
-const { REDIS_KEY, REDIS_URL } = process.env
-
+const { REDIS_URL } = process.env
 const log = require('./logger')
 const { createClient } = require('redis')
 const client = createClient({url: (REDIS_URL || null)})
 
 async function init(){
-    client.on("error", error => log.error(error))
+    client.on('error', error => log.error(error))
+    client.on('connect', () => log.success(`Redis client Connected`));
+
     await client.connect();
 }
 
-async function saveNewMessage(data) {
-    log.info('Saving: '+data.value)
-    return client.zAdd(REDIS_KEY, [data])
+async function saveNewMessage(data, key) {
+    log.info(`Saving: ${data.value} to key ${key}`)
+    return client.zAdd(key, [data])
 }
 
-async function getMessages(data, missed = false){
-    const response = await client.zRangeByScore(REDIS_KEY, ...data)
-    if(response.length > 0){
-        if(missed) log.success('RESTART Missed Messages are: ')
+async function close(){
+    log.info(`Closing Redis`)
+    await client.disconnect()
+}
 
-        const sortedArr = response.reduce( (newArray, value) => {
-            log.success(`${missed ? 'RESTART' : 'INTERVAL'}: ${value}`)
-            newArray.push({score: 0, value: value})
-            return newArray
-        }, [])
-
-        await client.zAdd(REDIS_KEY, sortedArr)
+async function getMessages(data, key){
+    log.info(`Fetching messages from key ${key}`)
+    const response = await client.zRangeByScore(key, ...data)
+    if(response.length){
+        log.success(`----KEY: ${key}----`)
+        log.success(response.join(`\n`))
     } else {
-        log.info(`${missed ? 'RESTART' : 'INTERVAL'}: No messages to get`)
+        log.info(`No messages`)
     }
     return response
 }
+
+async function setExpiration(key, ttlInMinutes){
+    log.info(`Setting expiration to key ${key}`)
+    await client.expire(key, ttlInMinutes)
+}
+
+async function getClusterKeys(key){
+    log.info(`Getting cluster keys from main key ${key}`)
+    const { keys } = await client.scan(0, {MATCH: `${key}:*`})
+    return keys
+}
+
 module.exports = {
     saveNewMessage,
     getMessages,
-    init
+    init,
+    close,
+    getClusterKeys,
+    setExpiration
 }

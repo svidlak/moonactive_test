@@ -1,4 +1,5 @@
 const RedisService = require("./services/redis");
+const {REDIS_KEY} = process.env
 
 function validateRequestBody(req, res, next){
   const { message, date } = req.body
@@ -6,29 +7,44 @@ function validateRequestBody(req, res, next){
   next()
 }
 
-async function missedMessages(){
-  try {
-    const init = await RedisService.init()
-    const dataToFetch = [1, new Date().getTime()]
-    await RedisService.getMessages(dataToFetch, true)
+async function missedMessages(FETCH_MESSAGES_EVERY){
+  const fetchEvery = Number(FETCH_MESSAGES_EVERY) * 1000
+  const currentTimestamp = new Date().getTime()
 
-    await fetchMessage()
-  } catch (e){
-    console.log(e)
-  }
+  await RedisService.init()
+  const keys = await RedisService.getClusterKeys(REDIS_KEY)
 
+  await Promise.all(keys
+    .filter(keyName => filterOutFutureKeysByTimestamp(keyName))
+    .map( keyName => RedisService.getMessages([1, currentTimestamp], keyName)))
+
+  await fetchMessage()
 
   async function fetchMessage(){
     return new Promise(async (resolve) => {
       setInterval(async ()=> {
-        const score = new Date().setMilliseconds(0)
-        const dataToFetch = [score, score]
-        await RedisService.getMessages(dataToFetch)
+        const date = new Date()
+        const keyDate = new Date()
+
+        const max = date.getTime()
+        const min = date.setSeconds(date.getSeconds() - Number(FETCH_MESSAGES_EVERY))
+        const dataToFetch = [min, max]
+
+        keyDate.setSeconds(0)
+        const keyName = `${REDIS_KEY}:${keyDate.setMilliseconds(0)}`
+
+        await RedisService.getMessages(dataToFetch, keyName)
         resolve(true)
-      }, 700)
+      }, fetchEvery)
     })
   }
+
+  function filterOutFutureKeysByTimestamp(keyName){
+    const [,keyTimestamp] = keyName.split(':')
+    return currentTimestamp >= Number(keyTimestamp)
+  }
 }
+
 
 module.exports = {
   validateRequestBody, missedMessages
